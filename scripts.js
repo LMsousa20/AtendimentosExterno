@@ -8,11 +8,11 @@ async function formatCurrentDate() {
 
 // Funções auxiliares (mantidas as mesmas)
 function formatDate(dateString) {
-    const options = { 
-        day: '2-digit', 
-        month: '2-digit', 
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
         year: 'numeric',
-        hour: '2-digit', 
+        hour: '2-digit',
         minute: '2-digit',
         hour12: false
     };
@@ -45,12 +45,12 @@ async function fetchAgendamentos() {
         if (!tecnico) {
             throw new Error('Nome do técnico não definido');
         }
-        
+
         const url = `https://api.movidesk.com/public/v1/tickets?token=1a59394e-9992-48cc-b4f6-7d9bfe590785&$expand=clients&$select=id,protocol,serviceFull,slaSolutionDate,category&$filter=justification eq 'Novo Agendado' and category eq '${tecnico}'`;
-        
+
         const response = await fetch(url);
         if (!response.ok) throw new Error('Erro na requisição');
-        
+
         const data = await response.json();
 
         return data.map(item => ({
@@ -77,7 +77,7 @@ async function fetchAgendamentos() {
 // Carrega e exibe os agendamentos
 async function loadAgendamentos() {
     const listaAgendamentos = document.getElementById('lista-agendamentos');
-    
+
     // Mostra estado de carregamento
     listaAgendamentos.innerHTML = `
         <div class="col-12 text-center">
@@ -90,10 +90,10 @@ async function loadAgendamentos() {
 
     try {
         const agendamentos = await fetchAgendamentos();
-        
+
         // Limpa a lista
         listaAgendamentos.innerHTML = '';
-        
+
         if (agendamentos.length === 0) {
             listaAgendamentos.innerHTML = `
                 <div class="col-12 text-center text-muted">
@@ -125,7 +125,7 @@ async function loadAgendamentos() {
 function createAgendamentoCard(agendamento) {
     const statusClass = `status-${agendamento.status}`;
     const badgeClass = getStatusBadgeClass(agendamento.status);
-    
+
     const card = document.createElement('div');
     card.className = 'col-md-6 col-lg-4';
     card.innerHTML = `
@@ -158,7 +158,7 @@ function createAgendamentoCard(agendamento) {
             </div>
         </div>
     `;
-    
+
     card.addEventListener('click', () => abrirModal(agendamento));
     return card;
 }
@@ -170,54 +170,23 @@ function abrirModal(agendamento) {
     document.getElementById('modal-client-address').textContent = formatAddress(agendamento.clientes);
     document.getElementById('modal-service-full').textContent = agendamento.serviceFull;
     document.getElementById('modal-sla-date').textContent = formatDate(agendamento.slaSolutionDate);
-    
+
     const statusBadge = document.getElementById('modal-status-badge');
     statusBadge.className = `status-badge ${getStatusBadgeClass(agendamento.status)}`;
     statusBadge.textContent = formatStatus(agendamento.status);
-    
+
     new bootstrap.Modal(document.getElementById('modalServico')).show();
 }
 
-document.getElementById('btnEnviarServico').addEventListener('click', function() {
-    const formData = {
-        agendamentoId: document.getElementById('agendamentoId').value,
-        servicoRealizado: document.getElementById('servicoRealizado').value,
-        observacoes: document.getElementById('observacoes').value,
-        status: document.getElementById('statusServico').value,
-        tempoGasto: document.getElementById('tempoServico').value,
-        fotos: document.getElementById('fotoServico').files
-    };
-    
-    if (!formData.servicoRealizado || !formData.status) {
-        alert('Por favor, preencha todos os campos obrigatórios!');
-        return;
-    }
-    
-    // Simulação de envio
-    setTimeout(() => {
-        alert('Relatório enviado com sucesso!');
-        bootstrap.Modal.getInstance(document.getElementById('modalServico')).hide();
-        
-        // Atualiza a interface
-        const card = document.querySelector(`.card-agendamento[data-id="${formData.agendamentoId}"]`);
-        if (card) {
-            card.classList.remove('status-pendente', 'status-andamento', 'status-concluido');
-            card.classList.add(`status-${formData.status}`);
-            
-            const badge = card.querySelector('.status-badge');
-            badge.className = `status-badge ${getStatusBadgeClass(formData.status)}`;
-            badge.textContent = formatStatus(formData.status);
-        }
-    }, 1000);
-});
+
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     formatCurrentDate();
     loadAgendamentos(); // Carrega os dados assincronamente
 });
 
-let tecnico ='';
+let tecnico = '';
 
 /**
  * Obtém ou solicita o nome do técnico
@@ -226,14 +195,14 @@ let tecnico ='';
 async function getOrRequestTechnicianName() {
     // Verifica se já existe no localStorage
     const nomeDoTecnico = localStorage.getItem('nomedotecnico');
-    
+
     // Se existir, retorna o valor
     if (nomeDoTecnico) {
         tecnico = nomeDoTecnico
         console.log(tecnico)
         return nomeDoTecnico;
     }
-    
+
     // Se não existir, solicita ao usuário
     return new Promise((resolve) => {
         // Cria um modal de prompt personalizado
@@ -257,30 +226,30 @@ async function getOrRequestTechnicianName() {
                 </div>
             </div>
         `;
-        
+
         // Adiciona o modal ao DOM
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
+
         // Mostra o modal
         const modal = new bootstrap.Modal(document.getElementById('technicianNameModal'));
         modal.show();
-        
+
         // Configura o evento de salvar
         document.getElementById('saveTechnicianName').addEventListener('click', () => {
             const inputName = document.getElementById('technicianNameInput').value.trim();
-            
+
             if (inputName) {
                 // Salva no localStorage
                 localStorage.setItem('nomedotecnico', inputName);
-                
+
                 // Fecha o modal
                 modal.hide();
-                
+
                 // Remove o modal do DOM após fechar
                 document.getElementById('technicianNameModal').addEventListener('hidden.bs.modal', () => {
                     document.getElementById('technicianNameModal').remove();
                 }, { once: true });
-                
+
                 // Resolve a Promise com o nome
                 resolve(inputName);
             } else {
@@ -297,16 +266,16 @@ async function initializeApp() {
         // 1. Primeiro obtém o nome do técnico
         tecnico = await getOrRequestTechnicianName();
         console.log('Técnico:', tecnico);
-        
+
         // 2. Atualiza a exibição do nome
         document.getElementById('nome-tecnico-display').textContent = tecnico;
-        
+
         // 3. Formata a data
         await formatCurrentDate();
-        
+
         // 4. Carrega os agendamentos (agora com o técnico definido)
         await loadAgendamentos();
-        
+
     } catch (error) {
         console.error('Erro ao inicializar aplicação:', error);
         // Mostra mensagem de erro para o usuário
@@ -318,45 +287,44 @@ async function initializeApp() {
     }
 }
 
-async function EnviaRelatorio(){
-    let tempoOk =''
+async function EnviaRelatorio() {
+    let tempoOk = ''
     let id = document.getElementById('agendamentoId').value;
-    let serviceOk = document.getElementById('servicoRealizado').value ;
-    let obsOk = document.getElementById('observacoes').value ;
-    let statusOk =  document.getElementById('statusServico').value ;
+    let serviceOk = document.getElementById('servicoRealizado').value;
+    let obsOk = document.getElementById('observacoes').value;
+    let selectElement = document.getElementById('statusServico');
 
+    let statusOk = selectElement.options[selectElement.selectedIndex].text;
     
-    // Pegar os valores dos inputs
+    // let statusOk = document.getElementById('statusServico').textContent;
+
+
+
     let horaIn = document.getElementById('horaEntrada').value;
     let horaOut = document.getElementById('horaSaida').value;
-    
-    // Verificar se ambos campos estão preenchidos
+   
+    if (!serviceOk || !obsOk) {
+        alert('Por favor, preencha todos os campos obrigatórios!');
+        return;
+    }
+
     if (!horaIn || !horaOut) {
         alert("Por favor, preencha ambos os horários");
         return;
     }
-    
-    // Converter para minutos totais
+
     const [hIn, mIn] = horaIn.split(':').map(Number);
     const [hOut, mOut] = horaOut.split(':').map(Number);
-    
     const minutosIn = hIn * 60 + mIn;
     const minutosOut = hOut * 60 + mOut;
-    
-    // Calcular diferença em minutos
     let diffMinutos = minutosOut - minutosIn;
-    
-    // Verificar se a saída é no dia seguinte (quando diff é negativo)
     if (diffMinutos < 0) {
         diffMinutos += 24 * 60; // Adiciona 24 horas
     }
-    
-    // Converter para horas decimais (ex: 3.5 em vez de 3:30)
-     tempoOk = diffMinutos / 60;
-    
-    console.log("Tempo calculado:", tempoOk, "horas");   
-    
-    
+    tempoOk = diffMinutos / 60;
+    console.log("Tempo calculado:", tempoOk, "horas");
+
+
     console.log(id)
     console.log(serviceOk)
     console.log(obsOk)
@@ -366,19 +334,88 @@ async function EnviaRelatorio(){
     console.log(tempoOk)
 
     let text = `
-    Serviço Relalizado: ${serviceOk}.
-    Observações: ${obsOk}.
-    Status do Serviço : ${statusOk}.
-    Tempo de serviço : ${tempoOk}.
+    Serviço Relalizado: ${serviceOk}.\n
+    Observações: ${obsOk}.\n
+    Status do Serviço : ${statusOk}.\n
+    Tempo de serviço : ${tempoOk}. HORAS \n
     `
-console.log(text)
+    console.log(text)
+
+    let updateData = `
+{    
+"type": 2, 
+"owner": {
+    "id": "363930337",
+    "personType": 1,
+    "profileType": 3,
+    "businessName": "Joaquim Carlos",
+    "email": "joaquim@acsapps.com.br",
+    "phone": "85 981908672"
+    },
+    "ownerTeam": "Suporte Fiscal",
+    "actions": [
+        {
+            "type": 2,
+            "origin": 2,
+            "description": "${text}",
+            "status": "Resolvido",
+            "tags": [
+                ]
+                }
+                ]
+                }
+                
+                `
+
+    console.log(updateData)
+
+    await patchTickets(id, updateData)
+
+    // Simulação de envio
+    setTimeout(() => {
+
+        alert('Relatório enviado com sucesso!');
+        bootstrap.Modal.getInstance(document.getElementById('modalServico')).hide();
+
+    }, 1000);
+
 
 }
+
+// document.getElementById('btnEnviarServico').addEventListener('click', function () {
+   
+
+
+// });
 
 
 // Inicia a aplicação
-document.addEventListener('DOMContentLoaded', initializeApp);
 
-function closeTicket(){
+async function patchTickets(ticketId, updateData) {
+    const url = `https://api.movidesk.com/public/v1/tickets?token=1a59394e-9992-48cc-b4f6-7d9bfe590785&id=${ticketId}`;
+    // console.log(url)
     
+    const requestOptions = {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+    };
+    
+    try {
+        const response = await fetch(url, requestOptions);
+        // console.log(response)
+        if (!response.ok) {
+            throw new Error('Erro ao atualizar o ticket');
+        }
+        console.log('Ticket Resolvido', ticketId);
+    } catch (error) {
+        console.error('Erro na requisição PATCH:', error.message);
+        throw error;
+    }
 }
+
+
+
+document.addEventListener('DOMContentLoaded', initializeApp);
