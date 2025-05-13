@@ -46,7 +46,7 @@ async function fetchAgendamentos() {
             throw new Error('Nome do técnico não definido');
         }
         
-        const url = `https://api.movidesk.com/public/v1/tickets?token=1a59394e-9992-48cc-b4f6-7d9bfe590785&$expand=clients&$select=protocol,serviceFull,slaSolutionDate,category&$filter=justification eq 'Novo Agendado' and category eq '${tecnico}'`;
+        const url = `https://api.movidesk.com/public/v1/tickets?token=1a59394e-9992-48cc-b4f6-7d9bfe590785&$expand=clients&$select=id,protocol,serviceFull,slaSolutionDate,category&$filter=justification eq 'Novo Agendado' and category eq '${tecnico}'`;
         
         const response = await fetch(url);
         if (!response.ok) throw new Error('Erro na requisição');
@@ -54,7 +54,8 @@ async function fetchAgendamentos() {
         const data = await response.json();
 
         return data.map(item => ({
-            id: item.protocol,
+            id: item.id,
+            protocol: item.protocol,
             clientes: {
                 businessName: item.clients?.[0]?.businessName || "Cliente não informado",
                 address: item.clients?.[0]?.address || 'Endereço não informado',
@@ -210,11 +211,11 @@ document.getElementById('btnEnviarServico').addEventListener('click', function()
     }, 1000);
 });
 
-// // Inicialização
-// document.addEventListener('DOMContentLoaded', function() {
-//     formatCurrentDate();
-//     loadAgendamentos(); // Carrega os dados assincronamente
-// });
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    formatCurrentDate();
+    loadAgendamentos(); // Carrega os dados assincronamente
+});
 
 let tecnico ='';
 
@@ -317,16 +318,67 @@ async function initializeApp() {
     }
 }
 
+async function EnviaRelatorio(){
+    let tempoOk =''
+    let id = document.getElementById('agendamentoId').value;
+    let serviceOk = document.getElementById('servicoRealizado').value ;
+    let obsOk = document.getElementById('observacoes').value ;
+    let statusOk =  document.getElementById('statusServico').value ;
 
+    
+    // Pegar os valores dos inputs
+    let horaIn = document.getElementById('horaEntrada').value;
+    let horaOut = document.getElementById('horaSaida').value;
+    
+    // Verificar se ambos campos estão preenchidos
+    if (!horaIn || !horaOut) {
+        alert("Por favor, preencha ambos os horários");
+        return;
+    }
+    
+    // Converter para minutos totais
+    const [hIn, mIn] = horaIn.split(':').map(Number);
+    const [hOut, mOut] = horaOut.split(':').map(Number);
+    
+    const minutosIn = hIn * 60 + mIn;
+    const minutosOut = hOut * 60 + mOut;
+    
+    // Calcular diferença em minutos
+    let diffMinutos = minutosOut - minutosIn;
+    
+    // Verificar se a saída é no dia seguinte (quando diff é negativo)
+    if (diffMinutos < 0) {
+        diffMinutos += 24 * 60; // Adiciona 24 horas
+    }
+    
+    // Converter para horas decimais (ex: 3.5 em vez de 3:30)
+     tempoOk = diffMinutos / 60;
+    
+    console.log("Tempo calculado:", tempoOk, "horas");   
+    
+    
+    console.log(id)
+    console.log(serviceOk)
+    console.log(obsOk)
+    console.log(statusOk)
+    console.log(horaIn)
+    console.log(horaOut)
+    console.log(tempoOk)
 
+    let text = `
+    Serviço Relalizado: ${serviceOk}.
+    Observações: ${obsOk}.
+    Status do Serviço : ${statusOk}.
+    Tempo de serviço : ${tempoOk}.
+    `
+console.log(text)
 
-
-
-
-
-
+}
 
 
 // Inicia a aplicação
 document.addEventListener('DOMContentLoaded', initializeApp);
 
+function closeTicket(){
+    
+}
