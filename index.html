@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos - Técnicos Externos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-1">Meus Agendamentos</h1>
+                    <p class="mb-0">Técnico: <strong id='nome-tecnico-display'></strong></p>
+                </div>
+               
+            </div>
+             <div class="badge bg-white text-primary px-3 py-2">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Hoje: <span id="current-date"></span>
+                </div>
+        </div>
+
+        <div class="row" id="lista-agendamentos">
+            <!-- Cards serão gerados dinamicamente via JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal para registrar serviço -->
+    <div class="modal fade" id="modalServico" tabindex="-1" aria-labelledby="modalServicoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalServicoLabel">Registrar Serviço Realizado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="service-detail-card">
+                        <h4 id="modal-client-name" class="client-name"></h4>
+                        <p id="modal-client-address" class="client-address mb-2"></p>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p class="mb-1"><strong>Serviço:</strong> <span id="modal-service-full"></span></p>
+                                <p class="mb-0"><strong>Prazo SLA:</strong> <span id="modal-sla-date"></span></p>
+                            </div>
+                            <span id="modal-status-badge" class="status-badge align-self-start"></span>
+                        </div>
+                    </div>
+                    
+                    <form id="formServico">
+                        <input type="hidden" id="agendamentoId">
+                        
+                        <div class="mb-3">
+                            <label for="servicoRealizado" class="form-label">Serviço Realizado *</label>
+                            <textarea class="form-control" id="servicoRealizado" rows="5" required placeholder="Descreva detalhadamente o serviço executado..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="observacoes" class="form-label">Observações</label>
+                            <textarea class="form-control" id="observacoes" rows="3" placeholder="Adicione quaisquer observações relevantes..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="statusServico" class="form-label">Status do Serviço *</label>
+                                <select class="form-select" id="statusServico" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="concluido">Concluído com sucesso</option>
+                                    <option value="andamento">Em andamento</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="tempoServico" class="form-label">Tempo Gasto (horas)</label>
+                                <input type="number" class="form-control" id="tempoServico" min="0" step="0.5" placeholder="2.5">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" id="fotoContainer">
+                            <label for="fotoServico" class="form-label">
+                                <i class="fas fa-camera me-2"></i>Evidência Fotográfica
+                            </label>
+                            <input type="file" class="form-control" id="fotoServico" accept="image/*" multiple>
+                            <small class="text-muted">Opcional, mas recomendado para comprovação</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnEnviarServico">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Relatório
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   <script src="scripts.js"></script>
+</body>
+</html>

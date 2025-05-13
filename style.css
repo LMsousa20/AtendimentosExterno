@@ -1,0 +1,143 @@
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+            --pending: #FF9F43;
+            --in-progress: #54A0FF;
+            --completed: #2ECC71;
+        }
+        
+        body {
+            background-color: #65696e;
+            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 13, 255, 0.15);
+        }
+        
+        .card-agendamento {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid;
+        }
+        
+        .card-agendamento:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 600;
+            padding: 18px 25px;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .client-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #2D3748;
+        }
+        
+        .client-address {
+            color: #4A5568;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        
+        .service-info {
+            background: #F8FAFC;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 15px 0;
+        }
+        
+        .service-title {
+            font-weight: 600;
+            color: #2D3748;
+            margin-bottom: 5px;
+        }
+        
+        .service-description {
+            color: #4A5568;
+            font-size: 0.9rem;
+        }
+        
+        .deadline {
+            display: flex;
+            align-items: center;
+            color: #4A5568;
+            font-size: 0.9rem;
+        }
+        
+        .deadline i {
+            margin-right: 8px;
+            color: #718096;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Status Colors */
+        .status-pendente {
+            border-left-color: var(--pending);
+        }
+        .badge-pendente {
+            background-color: rgba(255, 159, 67, 0.15);
+            color: var(--pending);
+        }
+        
+        .status-andamento {
+            border-left-color: var(--in-progress);
+        }
+        .badge-andamento {
+            background-color: rgba(84, 160, 255, 0.15);
+            color: var(--in-progress);
+        }
+        
+        .status-concluido {
+            border-left-color: var(--completed);
+        }
+        .badge-concluido {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--completed);
+        }
+        
+        /* Modal Styles */
+        .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .service-detail-card {
+            background: #F8FAFC;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+  
