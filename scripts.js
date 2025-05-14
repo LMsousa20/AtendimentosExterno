@@ -288,21 +288,16 @@ async function initializeApp() {
 }
 
 async function EnviaRelatorio() {
-    let tempoOk = ''
-    let id = document.getElementById('agendamentoId').value;
-    let serviceOk = document.getElementById('servicoRealizado').value;
-    let obsOk = document.getElementById('observacoes').value;
-    let selectElement = document.getElementById('statusServico');
+    // Coleta de dados do formulário
+    const id = document.getElementById('agendamentoId').value;
+    const serviceOk = document.getElementById('servicoRealizado').value;
+    const obsOk = document.getElementById('observacoes').value;
+    const selectElement = document.getElementById('statusServico');
+    const statusOk = selectElement.options[selectElement.selectedIndex].text;
+    const horaIn = document.getElementById('horaEntrada').value;
+    const horaOut = document.getElementById('horaSaida').value;
 
-    let statusOk = selectElement.options[selectElement.selectedIndex].text;
-    
-    // let statusOk = document.getElementById('statusServico').textContent;
-
-
-
-    let horaIn = document.getElementById('horaEntrada').value;
-    let horaOut = document.getElementById('horaSaida').value;
-   
+    // Validações
     if (!serviceOk || !obsOk) {
         alert('Por favor, preencha todos os campos obrigatórios!');
         return;
@@ -313,109 +308,70 @@ async function EnviaRelatorio() {
         return;
     }
 
+    // Cálculo do tempo
     const [hIn, mIn] = horaIn.split(':').map(Number);
     const [hOut, mOut] = horaOut.split(':').map(Number);
-    const minutosIn = hIn * 60 + mIn;
-    const minutosOut = hOut * 60 + mOut;
-    let diffMinutos = minutosOut - minutosIn;
-    if (diffMinutos < 0) {
-        diffMinutos += 24 * 60; // Adiciona 24 horas
-    }
-    tempoOk = diffMinutos / 60;
-    console.log("Tempo calculado:", tempoOk, "horas");
+    let diffMinutos = (hOut * 60 + mOut) - (hIn * 60 + mIn);
+    if (diffMinutos < 0) diffMinutos += 24 * 60;
+    const tempoOk = (diffMinutos / 60).toFixed(2);
 
+    // Montagem do texto do relatório
+    const relatorioText = ` Serviço Realizado: ${serviceOk} 
+    - Observações: ${obsOk}
+    - Status do Serviço: ${statusOk} 
+    - Tempo de serviço: ${tempoOk} HORAS`;
 
-    console.log(id)
-    console.log(serviceOk)
-    console.log(obsOk)
-    console.log(statusOk)
-    console.log(horaIn)
-    console.log(horaOut)
-    console.log(tempoOk)
+    // Objeto de dados estruturado corretamente
+    const updateData = {
+        type: 2,
+        owner: {
+            id: "363930337",
+            personType: 1,
+            profileType: 3,
+            businessName: "Joaquim Carlos",
+            email: "joaquim@acsapps.com.br",
+            phone: "85 981908672"
+        },
+        ownerTeam: "Suporte Fiscal",
+        actions: [{
+            type: 2,
+            origin: 2,
+            description: relatorioText,
+            status: "Resolvido",
+            tags: []
+        }]
+    };
 
-    let text = `
-    Serviço Relalizado: ${serviceOk}.\n
-    Observações: ${obsOk}.\n
-    Status do Serviço : ${statusOk}.\n
-    Tempo de serviço : ${tempoOk}. HORAS \n
-    `
-    console.log(text)
-
-    let updateData = `
-{    
-"type": 2, 
-"owner": {
-    "id": "363930337",
-    "personType": 1,
-    "profileType": 3,
-    "businessName": "Joaquim Carlos",
-    "email": "joaquim@acsapps.com.br",
-    "phone": "85 981908672"
-    },
-    "ownerTeam": "Suporte Fiscal",
-    "actions": [
-        {
-            "type": 2,
-            "origin": 2,
-            "description": "${text}",
-            "status": "Resolvido",
-            "tags": [
-                ]
-                }
-                ]
-                }
-                
-                `
-
-    console.log(updateData)
-
-    await patchTickets(id, updateData)
-
-    // Simulação de envio
-    setTimeout(() => {
-
+    try {
+        await patchTickets(id, updateData);
         alert('Relatório enviado com sucesso!');
         bootstrap.Modal.getInstance(document.getElementById('modalServico')).hide();
-
-    }, 1000);
-
-
+    } catch (error) {
+        console.error('Erro ao enviar relatório:', error);
+        alert('Erro ao enviar relatório. Verifique o console para mais detalhes.');
+    }
 }
 
-// document.getElementById('btnEnviarServico').addEventListener('click', function () {
-   
-
-
-// });
-
-
-// Inicia a aplicação
-
 async function patchTickets(ticketId, updateData) {
-    const url = `https://api.movidesk.com/public/v1/tickets?token=1a59394e-9992-48cc-b4f6-7d9bfe590785&id=${ticketId}`;
-    // console.log(url)
+    const url = `https://proxy-atendimentos-externo.onrender.com/proxy/${ticketId}`;
     
     const requestOptions = {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify(updateData)
     };
+
+    const response = await fetch(url, requestOptions);
     
-    try {
-        const response = await fetch(url, requestOptions);
-        // console.log(response)
-        if (!response.ok) {
-            throw new Error('Erro ao atualizar o ticket');
-        }
-        console.log('Ticket Resolvido', ticketId);
-    } catch (error) {
-        console.error('Erro na requisição PATCH:', error.message);
-        throw error;
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao atualizar o ticket');
     }
+    
+    return await response.json();
 }
-
-
 
 document.addEventListener('DOMContentLoaded', initializeApp);
